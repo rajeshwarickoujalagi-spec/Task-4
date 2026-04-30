@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tic-Tac-Toe</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: rgb(14,12,14);
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        .container{
+            text-align: center;
+        }
+
+        h1{
+            margin-bottom: 20px;
+            color: #007bff;
+        }
+
+        .game-board{
+            display: grid;
+            grid-template-columns: repeat(3,100px);
+            grid-template-rows: repeat(3,100px);
+            gap: 5px;
+            margin: 20px auto;
+            background-color: rgb(14,12,14);
+        }
+
+        .cell{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100px;
+            height: 100px;
+            background: aqua;
+            border: 2px solid #333;
+            font-size: 2rem;
+            font-style: bold;
+            cursor: pointer;
+            border-radius: 10px;
+        }
+
+        .cell.taken{
+            pointer-events: none;
+        }
+
+        .status{
+            margin: 20px 0;
+            font-size: 1.2rem;
+            color: #007bff;
+        }
+
+        button{
+            padding: 10px 20px;
+            font-size: 1rem;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover{
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Tic-Tac-Toe</h1>
+        <div class="game-board " id="gameBoard"></div>
+        <div class="status" id="status">Player X's turn</div>
+        <button id="restartButton">Restart Game</button>
+    </div>
+    <script src="script.js"></script>
+</body>
+<script>
+    const gameBoard = document.getElementById('gameBoard');
+    const statusDispaly = document.getElementById('status');
+    const restartButton = document.getElementById('restartButton');
+
+    let board = ['','','','','','','','',''];
+    let currentPlayer = 'X';
+    let isGameActive = true;
+
+    const winningConditions = [
+        [0,1,2],[3,4,5],[6,7,8],
+        [0,3,6],[1,4,7],[2,5,8],
+        [0,4,8],[2,4,6],
+    ];
+
+    function createBoard() {
+        gameBoard.innerHTML = '';
+        board.forEach((cell,index) => {
+            const cellDiv = document.createElement('div');
+            cellDiv.classList.add("cell");
+            cellDiv.setAttribute('data-index',index);
+            cellDiv.textContent = cell;
+            if(cell !== "") cellDiv.classList.add("taken");
+            gameBoard.appendChild(cellDiv);
+        });
+    }
+
+    function handleCellClick(event) {
+        const clickedCell = event.target;
+        const cellIndex = clickedCell.getAttribute("data-index");
+        if(board[cellIndex]!== "" || !isGameActive){
+            return;
+        }
+        board[cellIndex] = currentPlayer;
+        clickedCell.textContent = currentPlayer;
+        clickedCell.classList.add("taken");
+        checkResult();
+        switchPlayer();
+    }
+
+    function checkResult() {
+        let roundWon = false;
+        for (let condition of winningConditions) {
+            const [a,b,c] = condition;
+            if(board[a] && board[a] === board[b] && board[a] === board[c]){
+                roundWon = true;
+                break;
+            }
+        }
+        if(roundWon){
+            statusDispaly.textContent = `Player ${currentPlayer} wins!`;
+            isGameActive = false;
+            return;
+        }
+        if(!board.includes("")){
+            statusDispaly.textContent = "It's a draw!";
+            isGameActive = false;
+            return;
+        }
+    }
+
+    function switchPlayer() {
+        currentPlayer = currentPlayer === "X" ? "O" : "X";
+        if (isGameActive){
+            statusDispaly.textContent = `Player ${currentPlayer}'s turn`;
+        }
+    }
+
+    function restartGame() {
+        board = ['','','','','','','','',''];
+        currentPlayer = "X";
+        isGameActive = true;
+        statusDispaly.textContent = `Player X's turn`;
+        createBoard();
+    }
+
+    // Event listeners
+    gameBoard.addEventListener("click",handleCellClick);
+    restartButton.addEventListener("click",restartGame);
+
+    // Initialize the game
+    createBoard();
+</script>
+</html>
